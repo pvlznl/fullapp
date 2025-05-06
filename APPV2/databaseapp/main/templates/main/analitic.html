@@ -1,0 +1,345 @@
+{% extends 'main/base.html' %}
+
+{% block analitic %}
+<style>
+    canvas {
+        max-width: 400px;
+        max-height: 400px;
+        margin: auto;
+        display: block;
+    }
+
+    h3 {
+        margin-top: 40px; /* Отступ перед заголовками */
+    }
+
+    th.sorting:before,
+    th.sorting:after {
+    display: none !important;
+    }
+
+    
+    .content-box {
+        background-color: rgba(255, 255, 255, 0.9); /* Белый фон с полупрозрачностью */
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+        margin-bottom: 30px; /* Отступ снизу для каждого блока */
+    }
+
+</style>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+</head>
+
+<div class="container mt-4">
+  <div class="content-box">
+    <h2>Аналитика</h2>
+
+    <h3>Распределение версий Kaspersky</h3>
+    <canvas id="kavChart"></canvas>
+    <button class="btn btn-info mt-2" onclick="toggleTable('kavContainer')">Показать данные</button>
+
+<div id="kavContainer" class="mt-4" style="display: none;">
+  <div class="table-responsive">
+    <table id="kav-data-table" class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>Хост</th>
+          <th>Параметр</th>
+          <th>Значение</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in actual_sys_info_list %}
+          {% if item.param == "kav_ver" %}
+            <tr>
+              <td>{{ item.host }}</td>
+              <td>{{ item.param }}</td>
+              <td>{{ item.value }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>      
+
+    <!-- RAM (mem) -->
+    <h3>Распределение ОЗУ (mem)</h3>
+<canvas id="memChart"></canvas>
+<button class="btn btn-info mt-2" onclick="toggleTable('memContainer')">
+  Показать данные
+</button>
+
+<div id="memContainer" class="mt-4" style="display: none">
+  <div class="table-responsive">
+    <table id="mem-data-table" class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>Хост</th>
+          <th>Параметр</th>
+          <th>Значение</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in actual_sys_info_list %}
+          {% if item.param == "mem" %}
+            <tr>
+              <td>{{ item.host }}</td>
+              <td>{{ item.param }}</td>
+              <td>{{ item.value }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+    <!-- OS Version -->
+    <h3>Распределение операционных систем (3D)</h3>
+<canvas id="osverChart"></canvas>
+<button class="btn btn-info mt-2" onclick="toggleTable('osverContainer')">Показать данные</button>
+
+<div id="osverContainer" class="mt-4" style="display: none;">
+  <div class="table-responsive">
+    <table id="osver-data-table" class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>Хост</th>
+          <th>Параметр</th>
+          <th>Значение</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in actual_sys_info_list %}
+          {% if item.param == "osver" %}
+            <tr>
+              <td>{{ item.host }}</td>
+              <td>{{ item.param }}</td>
+              <td>{{ item.value }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+    <!-- Boot Times -->
+    <h3>График количества включений по дням</h3>
+<canvas id="bootChart"></canvas>
+<button class="btn btn-info mt-2" onclick="toggleTable('bootContainer')">Показать данные</button>
+
+<div id="bootContainer" class="mt-4" style="display: none;">
+  <div class="table-responsive">
+    <table id="boot-data-table" class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>Хост</th>
+          <th>Параметр</th>
+          <th>Значение</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in actual_sys_info_list %}
+          {% if item.param == "last_boot" %}
+            <tr>
+              <td>{{ item.host }}</td>
+              <td>{{ item.param }}</td>
+              <td>{{ item.value }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- Передача данных в JavaScript -->
+<script>
+    var kavData = {{ kav_json|safe }};
+    var memData = {{ mem_json|safe }};
+    var osverData = {{ osver_json|safe }};
+    var bootDates = {{ boot_dates|safe }};
+    var bootValues = {{ boot_values|safe }};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d"></script>
+<script>
+    function createChart(chartId, data, title, type = 'pie') {
+    var ctx = document.getElementById(chartId).getContext('2d');
+
+    if (type === 'bar') {
+        let datasets = [];
+        const colors = ['red', 'blue', 'green', 'orange', 'purple', 'teal', 'brown', 'gray'];
+
+        let i = 0;
+        for (const key in data) {
+            datasets.push({
+                label: `${data[key]} (${key})`,
+                data: [data[key]],
+                backgroundColor: colors[i % colors.length]
+            });
+            i++;
+        }
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['ОЗУ'], 
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: title },
+                    legend: { position: 'top' }
+                }
+            }
+        });
+
+    } else {
+        let labels = Object.keys(data).map(key => `${data[key]} (${key})`);
+        const chartData = Object.values(data);
+
+        new Chart(ctx, {
+            type: type,
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    label: title,
+                    data: chartData,
+                    backgroundColor: ['red', 'blue', 'green', 'orange', 'purple']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: title },
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    }
+}
+
+
+    function create3DChart(chartId, data, title) {
+        var ctx = document.getElementById(chartId).getContext('2d');
+        
+        let labels = Object.keys(data).map(key => `${data[key]} (${key})`);
+        const chartData = Object.values(data);
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: chartData,
+                    backgroundColor: ['red', 'blue', 'green', 'orange', 'purple']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: title },
+                    legend: { position: 'top' },
+                    chartJsPlugin3D: {
+                        depth: 30,
+                        perspective: 50,
+                        angle: 40
+                    }
+                }
+            }
+        });
+    }
+
+    function createLineChart(chartId, dates, values, title) {
+        var ctx = document.getElementById(chartId).getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Количество включений',
+                    data: values,
+                    fill: false,
+                    borderColor: 'blue',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Дата'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Количество компьютеров'
+                        },
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: { display: true, text: title }
+                }
+            }
+        });
+    }
+
+
+    createChart('kavChart', kavData, 'Распределение KAV');
+    createChart('memChart', memData, 'Распределение ОЗУ', 'bar');
+    create3DChart('osverChart', osverData, 'Распределение ОС (3D)');
+    createLineChart('bootChart', bootDates, bootValues, 'График включений по дням');
+</script>
+
+<script>
+    function toggleTable(id) {
+      const container = document.getElementById(id);
+      const isHidden = container.style.display === "none";
+      container.style.display = isHidden ? "block" : "none";
+  
+      // Инициализировать DataTable только один раз
+      if (isHidden) {
+        // Находим таблицу внутри контейнера
+        const table = container.querySelector('table');
+        
+        // Инициализируем DataTable только если он еще не был инициализирован
+        if (!$.fn.DataTable.isDataTable(table)) {
+          $(table).DataTable({
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
+            language: {
+              url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/ru.json'
+            }
+          });
+        }
+      }
+    }
+  </script>
+  
+
+{% endblock %}

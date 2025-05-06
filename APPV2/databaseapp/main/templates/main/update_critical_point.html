@@ -1,0 +1,122 @@
+{% extends 'main/base.html' %} {% block update_critical_point %}
+
+<style>
+  .content-box {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  }
+</style>
+
+<div class="container mt-4">
+  <div class="content-box">
+    <h2>Редактирование критической точки: {{ param }}</h2>
+
+    <form
+      method="post"
+      action="{% url 'update_critical_point' param %}"
+      class="critical-form mb-4"
+    >
+      {% csrf_token %}
+
+      <div class="row">
+        <div class="col-md-4">
+          <label for="id_param">{{ form.param.label }}</label>
+          {{ form.param }}
+        </div>
+        <div class="col-md-4">
+          <label for="id_check_type">{{ form.check_type.label }}</label>
+          {{ form.check_type }}
+        </div>
+      </div>
+
+      <div
+        id="borders_fields"
+        class="conditional-fields row mt-3"
+        style="display: none"
+      >
+        <div class="col-md-4">
+          <label for="id_min_value">{{ form.min_value.label }}</label>
+          {{ form.min_value }}
+        </div>
+        <div class="col-md-4">
+          <label for="id_max_value">{{ form.max_value.label }}</label>
+          {{ form.max_value }}
+        </div>
+      </div>
+
+      <div
+        id="exact_float_fields"
+        class="conditional-fields row mt-3"
+        style="display: none"
+      >
+        <div class="col-md-4">
+          <label for="id_exact_value">{{ form.exact_value.label }}</label>
+          {{ form.exact_value }}
+        </div>
+        <div class="col-md-4">
+          <label for="id_measure_of_calculation"
+            >{{ form.measure_of_calculation.label }}</label
+          >
+          {{ form.measure_of_calculation }}
+        </div>
+      </div>
+
+      <div
+        id="exact_string_fields"
+        class="conditional-fields row mt-3"
+        style="display: none"
+      >
+        <div class="col-md-4">
+          <label for="id_string_value">{{ form.string_value.label }}</label>
+          {{ form.string_value }}
+        </div>
+      </div>
+
+      <div
+        id="day_count_fields"
+        class="conditional-fields row mt-3"
+        style="display: none"
+      >
+        <div class="col-md-4">
+          <label for="id_day_count">{{ form.day_count.label }}</label>
+          {{ form.day_count }}
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-3">Изменить</button>
+    </form>
+
+    {% if error %}
+    <p style="color: red">{{ error }}</p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const checkTypeField = document.getElementById("id_check_type");
+    const bordersFields = document.getElementById("borders_fields");
+    const exactFloatFields = document.getElementById("exact_float_fields");
+    const exactStringFields = document.getElementById("exact_string_fields");
+    const dayCountFields = document.getElementById("day_count_fields");
+
+    function updateFields() {
+      const selectedValue = checkTypeField.value;
+
+      bordersFields.style.display =
+        selectedValue === "borders" ? "flex" : "none";
+      exactFloatFields.style.display =
+        selectedValue === "exact_value" ? "flex" : "none";
+      exactStringFields.style.display =
+        selectedValue === "string_value" ? "flex" : "none";
+      dayCountFields.style.display =
+        selectedValue === "day_count" ? "flex" : "none";
+    }
+
+    checkTypeField.addEventListener("change", updateFields);
+    updateFields();
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PCINspect</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      body {
+        background: linear-gradient(45deg, #A9A9A9, #95d0e4, #5171bb);
+        background-size: 400% 400%;
+        animation: gradientBG 10s ease infinite;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .footer-space {
+    height: 50px; 
+  }
+
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+      body {
+        padding-top: 56px;
+      }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="/static/main/img/1.png" alt="Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav w-100 d-flex justify-content-around">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/">Список данных</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Критические точки
+                        </a>
+                        <ul class="nav-item dropdown-menu">
+                          <li><a class="dropdown-item" href="{% url 'problem_pc_list' %}">Список критических точек</a></li>
+                          {% if perms.your_app.can_view_limited %}
+                          <li><a class="dropdown-item" href="{% url 'manage_critical_points' %}">Настройки критических точек</a></li>
+                          {% endif %}
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'analitic' %}">Анализ</a>
+                    </li>
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link text-white">Выйти</button>
+                            </form>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        {% block upload-excel %}{% endblock %}
+        {% block con %}{% endblock %}
+        {% block manage_critical_points %}{% endblock %}
+        {% block problem_pc_list %}{% endblock %}
+        {% block update_critical_point %}{% endblock %}
+        {% block update_pc_list %}{% endblock %}
+        {% block update_pc %}{% endblock %}
+        {% block analitic %}{% endblock %}
+        {% block login %}{% endblock %}
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            $('#data-table').DataTable();
+        });
+    </script>
+</body>
+</html>

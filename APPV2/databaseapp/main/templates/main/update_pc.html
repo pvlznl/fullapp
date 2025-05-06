@@ -1,0 +1,105 @@
+{% extends 'main/base.html' %} {% block update_pc %}
+
+<style>
+  .content-box {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  }
+</style>
+
+<div class="content-box">
+  <h2>Редактирование конкретного ПК</h2>
+
+  <form method="post" id="update-form">
+    {% csrf_token %}
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Параметр</th>
+          <th>Значение</th>
+          <th>Удалить</th>
+        </tr>
+      </thead>
+      <tbody id="parameters-table">
+        {% for field in form %}
+        <tr id="row-{{ field.name }}">
+          <td>{{ field.label }}</td>
+          <td>{{ field }}</td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-danger btn-sm delete-btn"
+              data-field="{{ field.name }}"
+            >
+              🗑
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="button" class="btn btn-success" id="add-param-btn">
+      Добавить параметр и значение
+    </button>
+
+    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+  </form>
+
+  {% if error %}
+  <p style="color: red">{{ error }}</p>
+  {% endif %}
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const addParamBtn = document.getElementById("add-param-btn");
+    const paramsTable = document.getElementById("parameters-table");
+
+    addParamBtn.addEventListener("click", function () {
+      const newRow = document.createElement("tr");
+
+      const paramTd = document.createElement("td");
+      const paramInput = document.createElement("input");
+      paramInput.setAttribute("type", "text");
+      paramInput.setAttribute("name", "new-param");
+      paramInput.classList.add("form-control");
+      paramTd.appendChild(paramInput);
+
+      const valueTd = document.createElement("td");
+      const valueInput = document.createElement("input");
+      valueInput.setAttribute("type", "text");
+      valueInput.setAttribute("name", "new-value");
+      valueInput.classList.add("form-control");
+      valueTd.appendChild(valueInput);
+
+      const deleteTd = document.createElement("td");
+      const deleteBtn = document.createElement("button");
+      deleteBtn.classList.add("btn", "btn-danger", "btn-sm");
+      deleteBtn.innerHTML = "🗑";
+      deleteBtn.addEventListener("click", function () {
+        newRow.remove();
+      });
+      deleteTd.appendChild(deleteBtn);
+
+      newRow.appendChild(paramTd);
+      newRow.appendChild(valueTd);
+      newRow.appendChild(deleteTd);
+
+      paramsTable.appendChild(newRow);
+    });
+
+    document.querySelectorAll(".delete-btn").forEach((button) => {
+      button.addEventListener("click", function () {
+        const rowId = "row-" + this.getAttribute("data-field");
+        document.getElementById(rowId).remove();
+      });
+    });
+  });
+</script>
+
+<div class="footer-space"></div>
+
+{% endblock %}

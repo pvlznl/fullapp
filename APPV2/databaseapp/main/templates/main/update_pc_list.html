@@ -1,0 +1,60 @@
+{% extends 'main/base.html' %} {% block update_pc_list %}
+<style>
+  .content-box {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  }
+</style>
+
+<div class="container mt-4">
+  <div class="content-box">
+    <h2 class="mb-3">Список актуальных ПК</h2>
+
+    <form method="get" action="{% url 'update_pc_list' %}" class="mb-4">
+      {% csrf_token %}
+      <div class="col-md-4">
+        <label for="hosts">{{ form.hosts.label }}</label>
+        {{ form.hosts }}
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">Поиск</button>
+    </form>
+
+    {% if sys_info_list %}
+    <div class="table-responsive">
+      <table
+        id="data-table"
+        class="table table-striped table-bordered"
+        data-searching="false"
+      >
+        <thead class="table-dark">
+          <tr>
+            <th>ID JSON строки</th>
+            <th>Хост</th>
+            <th>Дата и время</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in sys_info_list %}
+          <tr>
+            <td>{{ item.id_raw }}</td>
+            <td>{{ item.host }}</td>
+            <td>{{ item.time_date }}</td>
+            <td class="text-center">
+              <a href="{% url 'update_pc' item.id_raw %}">
+                <button class="btn btn-primary">Редактировать</button>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Данные не найдены.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
