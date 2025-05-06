@@ -1,8 +1,10 @@
 from django.urls import path
 from . import views
+from .views import custom_login_view
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    path('login/', custom_login_view, name='login'),
     path('', views.index, name='index'),
     path('upload-excel/', views.upload_excel, name='upload_excel'),
     path('manage-critical-points/', views.manage_critical_points, name='manage_critical_points'),

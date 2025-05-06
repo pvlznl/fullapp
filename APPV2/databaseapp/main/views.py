@@ -19,6 +19,26 @@ from datetime import datetime
 from collections import defaultdict
 from datetime import datetime
 
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+
+def custom_login_view(request):
+    error_message = None
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('index')  # Или другой URL
+        else:
+            error_message = "Неверный логин или пароль"
+
+    return render(request, 'main/login.html', {'error_message': error_message})
+
+
 def analitic(request):
     actual_sys_info_list = fetch_actual_data_from_fastapi()
 
