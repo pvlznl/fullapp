@@ -19,6 +19,11 @@
         margin: 0;
       }
 
+      .disabled-link {
+  pointer-events: none; 
+  opacity: 0.5; 
+}
+
       .footer-space {
     height: 50px; 
   }
@@ -100,9 +105,17 @@
     </div>
     
     <script>
-        $(document).ready(function() {
-            $('#data-table').DataTable();
-        });
-    </script>
+      $(document).ready(function() {
+          $('#data-table').DataTable();
+      });
+
+      {% if not request.user.is_authenticated %}
+      $(document).ready(function() {
+          $(".nav-link, .dropdown-item").addClass("disabled-link");
+      });
+      {% endif %}
+
+  </script>
+    
 </body>
 </html>
