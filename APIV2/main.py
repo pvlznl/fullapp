@@ -321,4 +321,4 @@ async def delete_critical_point(param: Annotated[str, Path(..., title="Укаж�
 
     db.delete(del_param)
     db.commit()
-    return {"massage": f'Удаление итической точки "{param}" успешно завершено'}
+    return {"massage": f'Удаление критической точки "{param}" успешно завершено'}

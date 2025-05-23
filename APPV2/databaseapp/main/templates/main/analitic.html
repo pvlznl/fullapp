@@ -10,7 +10,7 @@
     }
 
     h3 {
-        margin-top: 40px; /* Отступ перед заголовками */
+        margin-top: 40px;
     }
 
     th.sorting:before,
@@ -20,11 +20,11 @@
 
     
     .content-box {
-        background-color: rgba(255, 255, 255, 0.9); /* Белый фон с полупрозрачностью */
+        background-color: rgba(255, 255, 255, 0.9); 
         border-radius: 15px;
         padding: 2rem;
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
-        margin-bottom: 30px; /* Отступ снизу для каждого блока */
+        margin-bottom: 30px;
     }
 
 </style>
@@ -68,7 +68,6 @@
   </div>
 </div>      
 
-    <!-- RAM (mem) -->
     <h3>Распределение ОЗУ (mem)</h3>
 <canvas id="memChart"></canvas>
 <button class="btn btn-info mt-2" onclick="toggleTable('memContainer')">
@@ -100,7 +99,6 @@
   </div>
 </div>
 
-    <!-- OS Version -->
     <h3>Распределение операционных систем (3D)</h3>
 <canvas id="osverChart"></canvas>
 <button class="btn btn-info mt-2" onclick="toggleTable('osverContainer')">Показать данные</button>
@@ -130,8 +128,6 @@
   </div>
 </div>
 
-
-    <!-- Boot Times -->
     <h3>График количества включений по дням</h3>
 <canvas id="bootChart"></canvas>
 <button class="btn btn-info mt-2" onclick="toggleTable('bootContainer')">Показать данные</button>
@@ -161,8 +157,6 @@
   </div>
 </div>
 
-
-<!-- Передача данных в JavaScript -->
 <script>
     var kavData = {{ kav_json|safe }};
     var memData = {{ mem_json|safe }};
@@ -232,8 +226,6 @@
         });
     }
 }
-
-
     function create3DChart(chartId, data, title) {
         var ctx = document.getElementById(chartId).getContext('2d');
         
@@ -309,7 +301,6 @@
         });
     }
 
-
     createChart('kavChart', kavData, 'Распределение KAV');
     createChart('memChart', memData, 'Распределение ОЗУ', 'bar');
     create3DChart('osverChart', osverData, 'Распределение ОС (3D)');
@@ -322,18 +313,25 @@
       const isHidden = container.style.display === "none";
       container.style.display = isHidden ? "block" : "none";
   
-      // Инициализировать DataTable только один раз
       if (isHidden) {
-        // Находим таблицу внутри контейнера
         const table = container.querySelector('table');
-        
-        // Инициализируем DataTable только если он еще не был инициализирован
         if (!$.fn.DataTable.isDataTable(table)) {
           $(table).DataTable({
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
-            language: {
-              url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/ru.json'
+            "language": {
+                "lengthMenu": "Показать _MENU_ записей",
+                "zeroRecords": "Ничего не найдено",
+                "info": "Страница _PAGE_ из _PAGES_",
+                "infoEmpty": "Нет записей",
+                "infoFiltered": "(отфильтровано из _MAX_ записей)",
+                "search": "Поиск:",
+                "paginate": {
+                    "first": "Первая",
+                    "last": "Последняя",
+                    "next": "Следующая",
+                    "previous": "Предыдущая"
+                }
             }
           });
         }
@@ -341,5 +339,4 @@
     }
   </script>
   
-
 {% endblock %}
