@@ -24,7 +24,10 @@
                     {{ form.params }}
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary mt-3">Поиск</button>
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">Показать</button>
+                <a href="{% url 'problem_pc_list' %}" class="btn btn-secondary">Сбросить фильтры</a>
+            </div>
         </form>
 
         {% if problematic_pcs %}

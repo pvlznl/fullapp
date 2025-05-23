@@ -41,7 +41,11 @@
                     {{ form.end_date }}
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary mt-3">Показать</button>
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">Показать</button>
+                <a href="{% url 'index' %}" class="btn btn-secondary">Сбросить фильтры</a>
+            </div>
+
         </form>
 
         {% if sys_info_list %}
